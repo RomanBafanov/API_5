@@ -12,7 +12,7 @@ COUNT = 100
 
 
 def get_response_hh(language):
-    info_about_vacancies_hh = []
+    vacancies_hh = []
     page = 0
     pages_number = 1
     url = 'https://api.hh.ru/vacancies'
@@ -28,13 +28,13 @@ def get_response_hh(language):
         page_payload = page_response.json()
         pages_number = page_payload['pages']
         page += 1
-        info_about_vacancies_hh.append(page_payload)
+        vacancies_hh.append(page_payload)
 
-    return info_about_vacancies_hh, pages_number
+    return vacancies_hh, pages_number
 
 
 def get_response_sj(language, api_key):
-    info_about_vacancies_sj = []
+    vacancies_sj = []
     page = 0
     url = 'https://api.superjob.ru/2.0/vacancies/'
     headers = {
@@ -52,43 +52,41 @@ def get_response_sj(language, api_key):
         response.raise_for_status()
         page_response = response.json()
         total = page_response['total']
-        info_about_vacancies_sj.append(page_response)
+        vacancies_sj.append(page_response)
         if not page_response['more']:
-            return info_about_vacancies_sj, total
+            return vacancies_sj, total
         else:
             page += 1
 
 
 def predict_rub_salary_hh(vacancy):
-    vac_salary = vacancy['salary']
-    if vac_salary:
-        if vac_salary['from'] is None:
-            salary = int(vac_salary['to'] * 0.8)
-            return salary
-        elif vac_salary['to'] is None:
-            salary = int(vac_salary['from'] * 1.2)
-            return salary
-        else:
-            salary = int((vac_salary['from'] + vac_salary['to']) / 2)
-            return salary
-    else:
+    vacancy_salary = vacancy['salary']
+    if not vacancy_salary:
         return None
-
-
-def predict_rub_salary_sj(vacancy):
-    if vacancy['payment_to'] or vacancy['payment_from'] == 0:
-        if vacancy['payment_from'] == 0 and vacancy['payment_to'] != 0:
-            salary = int(vacancy['payment_to'] * 0.8)
-            return salary
-        elif vacancy['payment_to'] == 0 and vacancy['payment_from'] != 0:
-            salary = int(vacancy['payment_from'] * 1.2)
-            return salary
+    elif not vacancy_salary['from']:
+        salary = int(vacancy_salary['to'] * 0.8)
+        return salary
+    elif not vacancy_salary['to']:
+        salary = int(vacancy_salary['from'] * 1.2)
+        return salary
     else:
-        salary = int((vacancy['payment_from'] + vacancy['payment_to']) / 2)
+        salary = int((vacancy_salary['from'] + vacancy_salary['to']) / 2)
         return salary
 
 
-def output_console(average_salaries_for_vacancies, website):
+def predict_rub_salary_sj(vacancy):
+    if vacancy['payment_to'] and vacancy['payment_from'] != 0:
+        salary = int((vacancy['payment_from'] + vacancy['payment_to']) / 2)
+        return salary
+    elif not vacancy['payment_from']:
+        salary = int(vacancy['payment_to'] * 0.8)
+        return salary
+    elif not vacancy['payment_to']:
+        salary = int(vacancy['payment_from'] * 1.2)
+        return salary
+
+
+def creating_vacancy_table(average_salaries_for_vacancies, website):
     analyzed_salaries = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     for language, analysis in average_salaries_for_vacancies.items():
         job_analysis = [language]
@@ -102,17 +100,18 @@ def output_console(average_salaries_for_vacancies, website):
     return table_instance
 
 
-def create_salaries_hh(languages):
+def creating_table_of_average_salaries_hh(languages):
     website = 'HeadHunter'
     average_salaries_for_vacancies = {}
     for language in languages:
-        info_about_vacancies, pages_number = get_response_hh(language)
+        vacancies_hh, pages_number = get_response_hh(language)
         salaries = []
-        for vacancies in info_about_vacancies:
+        for vacancies in vacancies_hh:
             for vacancy in vacancies['items']:
                 salary = predict_rub_salary_hh(vacancy)
                 if salary:
                     salaries.append(salary)
+        average = 0
         try:
             average = int(sum(salaries) / len(salaries))
         except ZeroDivisionError:
@@ -124,23 +123,22 @@ def create_salaries_hh(languages):
                 'average_salary': average,
         }
 
-    table = output_console(average_salaries_for_vacancies, website)
-
-    return table
+    return average_salaries_for_vacancies, website
 
 
-def create_salaries_sj(languages, api_key):
+def creating_table_of_average_salaries_sj(languages, api_key):
     website = 'Super Job'
     average_salaries_for_vacancies = {}
     for language in languages:
-        info_about_vacancies_sj, total = get_response_sj(language, api_key)
+        vacancies_sj, total = get_response_sj(language, api_key)
         salaries = []
-        for vacancies in info_about_vacancies_sj:
+        for vacancies in vacancies_sj:
             for vacancy in vacancies['objects']:
                 salary = predict_rub_salary_sj(vacancy)
                 if salary:
                     salaries.append(salary)
         if salaries:
+            average = 0
             try:
                 average = int(sum(salaries) / len(salaries))
             except ZeroDivisionError:
@@ -152,18 +150,22 @@ def create_salaries_sj(languages, api_key):
                     'average_salary': average,
             }
 
-    table = output_console(average_salaries_for_vacancies, website)
-
-    return table
+    return average_salaries_for_vacancies, website
 
 
 def main():
     load_dotenv()
     api_key = os.getenv('API_KEY_SJ')
-    programming_language = ['Python', 'Java', 'Javascript', 'Go', 'PHP', 'C++']
-    table_hh = create_salaries_hh(programming_language)
-    table_sj = create_salaries_sj(programming_language, api_key)
-    print(f"{table_hh.table}\n\n{table_sj.table}")
+    programming_language = ['Python', 'Java',]# 'Javascript', 'Go', 'PHP', 'C++']
+
+    average_salaries_for_vacancies, website = creating_table_of_average_salaries_sj(programming_language, api_key)
+    table_sj = creating_vacancy_table(average_salaries_for_vacancies, website)
+
+    # average_salaries_for_vacancies, website = creating_table_of_average_salaries_hh(programming_language)
+    # table_hh = creating_vacancy_table(average_salaries_for_vacancies, website)
+    #
+    # print(f"{table_hh.table}\n\n{table_sj.table}")
+    print(table_sj.table)
 
 
 if __name__ == '__main__':
