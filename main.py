@@ -11,7 +11,7 @@ CATALOGUES = 48
 COUNT = 100
 
 
-def get_response_hh(language):
+def get_vacancies_hh(language):
     vacancies_hh = []
     page = 0
     pages_number = 1
@@ -33,7 +33,7 @@ def get_response_hh(language):
     return vacancies_hh, pages_number
 
 
-def get_response_sj(language, api_key):
+def get_vacancies_sj(language, api_key):
     vacancies_sj = []
     page = 0
     url = 'https://api.superjob.ru/2.0/vacancies/'
@@ -103,7 +103,7 @@ def creating_a_table_of_average_salaries(average_salaries_for_vacancies, website
 def we_find_average_salaries_hh(languages):
     average_salaries_for_vacancies = {}
     for language in languages:
-        vacancies_hh, pages_number = get_response_hh(language)
+        vacancies_hh, pages_number = get_vacancies_hh(language)
         salaries = []
         for vacancies in vacancies_hh:
             for vacancy in vacancies['items']:
@@ -128,7 +128,7 @@ def we_find_average_salaries_hh(languages):
 def we_find_average_salaries_sj(languages, api_key):
     average_salaries_for_vacancies = {}
     for language in languages:
-        vacancies_sj, total = get_response_sj(language, api_key)
+        vacancies_sj, total = get_vacancies_sj(language, api_key)
         salaries = []
         for vacancies in vacancies_sj:
             for vacancy in vacancies['objects']:
