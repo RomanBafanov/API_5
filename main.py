@@ -156,16 +156,15 @@ def creating_table_of_average_salaries_sj(languages, api_key):
 def main():
     load_dotenv()
     api_key = os.getenv('API_KEY_SJ')
-    programming_language = ['Python', 'Java',]# 'Javascript', 'Go', 'PHP', 'C++']
+    programming_language = ['Python', 'Java', 'Javascript', 'Go', 'PHP', 'C++']
 
     average_salaries_for_vacancies, website = creating_table_of_average_salaries_sj(programming_language, api_key)
     table_sj = creating_vacancy_table(average_salaries_for_vacancies, website)
 
-    # average_salaries_for_vacancies, website = creating_table_of_average_salaries_hh(programming_language)
-    # table_hh = creating_vacancy_table(average_salaries_for_vacancies, website)
-    #
-    # print(f"{table_hh.table}\n\n{table_sj.table}")
-    print(table_sj.table)
+    average_salaries_for_vacancies, website = creating_table_of_average_salaries_hh(programming_language)
+    table_hh = creating_vacancy_table(average_salaries_for_vacancies, website)
+
+    print(f"{table_hh.table}\n\n{table_sj.table}")
 
 
 if __name__ == '__main__':
