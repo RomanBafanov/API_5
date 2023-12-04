@@ -75,7 +75,7 @@ def predict_rub_salary_hh(vacancy):
 
 
 def predict_rub_salary_sj(vacancy):
-    if vacancy['payment_to'] and vacancy['payment_from'] != 0:
+    if vacancy['payment_to'] and vacancy['payment_from']:
         salary = int((vacancy['payment_from'] + vacancy['payment_to']) / 2)
         return salary
     elif not vacancy['payment_from']:
