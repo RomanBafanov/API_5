@@ -101,7 +101,6 @@ def creating_vacancy_table(average_salaries_for_vacancies, website):
 
 
 def creating_table_of_average_salaries_hh(languages):
-    website = 'HeadHunter'
     average_salaries_for_vacancies = {}
     for language in languages:
         vacancies_hh, pages_number = get_response_hh(language)
@@ -123,11 +122,10 @@ def creating_table_of_average_salaries_hh(languages):
                 'average_salary': average,
         }
 
-    return average_salaries_for_vacancies, website
+    return average_salaries_for_vacancies
 
 
 def creating_table_of_average_salaries_sj(languages, api_key):
-    website = 'Super Job'
     average_salaries_for_vacancies = {}
     for language in languages:
         vacancies_sj, total = get_response_sj(language, api_key)
@@ -150,7 +148,7 @@ def creating_table_of_average_salaries_sj(languages, api_key):
                     'average_salary': average,
             }
 
-    return average_salaries_for_vacancies, website
+    return average_salaries_for_vacancies
 
 
 def main():
@@ -158,11 +156,11 @@ def main():
     api_key = os.getenv('API_KEY_SJ')
     programming_language = ['Python', 'Java', 'Javascript', 'Go', 'PHP', 'C++']
 
-    average_salaries_for_vacancies, website = creating_table_of_average_salaries_sj(programming_language, api_key)
-    table_sj = creating_vacancy_table(average_salaries_for_vacancies, website)
+    average_salaries_for_vacancies = creating_table_of_average_salaries_sj(programming_language, api_key)
+    table_sj = creating_vacancy_table(average_salaries_for_vacancies, 'Super Job')
 
-    average_salaries_for_vacancies, website = creating_table_of_average_salaries_hh(programming_language)
-    table_hh = creating_vacancy_table(average_salaries_for_vacancies, website)
+    average_salaries_for_vacancies = creating_table_of_average_salaries_hh(programming_language)
+    table_hh = creating_vacancy_table(average_salaries_for_vacancies, 'HeadHunter')
 
     print(f"{table_hh.table}\n\n{table_sj.table}")
 
