@@ -14,6 +14,7 @@ COUNT = 100
 def get_vacancies_hh(language):
     vacancies_hh = []
     page = 0
+    total = 0
     pages_number = 1
     url = 'https://api.hh.ru/vacancies'
     while page < pages_number:
@@ -27,10 +28,11 @@ def get_vacancies_hh(language):
         page_response.raise_for_status()
         page_payload = page_response.json()
         pages_number = page_payload['pages']
+        total = page_payload['found']
         page += 1
         vacancies_hh.append(page_payload)
 
-    return vacancies_hh, pages_number
+    return vacancies_hh, total
 
 
 def get_vacancies_sj(language, api_key):
@@ -103,7 +105,7 @@ def creating_a_table_of_average_salaries(average_salaries_for_vacancies, website
 def we_find_average_salaries_hh(languages):
     average_salaries_for_vacancies = {}
     for language in languages:
-        vacancies_hh, pages_number = get_vacancies_hh(language)
+        vacancies_hh, total = get_vacancies_hh(language)
         salaries = []
         for vacancies in vacancies_hh:
             for vacancy in vacancies['items']:
@@ -114,19 +116,19 @@ def we_find_average_salaries_hh(languages):
             average = int(sum(salaries) / len(salaries))
             count = len(salaries)
             average_salaries_for_vacancies[language] = {
-                'vacancies_found': pages_number,
+                'vacancies_found': total,
                 'vacancies_processed': count,
                 'average_salary': average,
             }
         except ZeroDivisionError:
             print("Cannot divide by zero!")
-        count = len(salaries)
-        average = 0
-        average_salaries_for_vacancies[language] = {
-                'vacancies_found': pages_number,
-                'vacancies_processed': count,
-                'average_salary': average,
-        }
+            count = len(salaries)
+            average = 0
+            average_salaries_for_vacancies[language] = {
+                    'vacancies_found': total,
+                    'vacancies_processed': count,
+                    'average_salary': average,
+            }
 
     return average_salaries_for_vacancies
 
