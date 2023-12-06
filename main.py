@@ -136,17 +136,16 @@ def we_find_average_salaries_sj(languages, api_key):
                 if salary:
                     salaries.append(salary)
         if salaries:
-            average = 0
             try:
                 average = int(sum(salaries) / len(salaries))
-            except ZeroDivisionError:
-                print("Cannot divide by zero!")
-            count = len(salaries)
-            average_salaries_for_vacancies[language] = {
+                count = len(salaries)
+                average_salaries_for_vacancies[language] = {
                     'vacancies_found': total,
                     'vacancies_processed': count,
                     'average_salary': average,
-            }
+                }
+            except ZeroDivisionError:
+                print("Cannot divide by zero!")
 
     return average_salaries_for_vacancies
 
