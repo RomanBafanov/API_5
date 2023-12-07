@@ -61,30 +61,17 @@ def get_vacancies_sj(language, api_key):
             page += 1
 
 
-def predict_rub_salary_hh(vacancy):
-    vacancy_salary = vacancy['salary']
-    if not vacancy_salary:
+def predict_rub_salary(payment_to, payment_from):
+    if not payment_to and not payment_from:
         return None
-    elif not vacancy_salary['from']:
-        salary = int(vacancy_salary['to'] * 0.8)
+    elif not payment_to:
+        salary = int(payment_from * 1.2)
         return salary
-    elif not vacancy_salary['to']:
-        salary = int(vacancy_salary['from'] * 1.2)
+    elif not payment_from:
+        salary = int(payment_to * 0.8)
         return salary
     else:
-        salary = int((vacancy_salary['from'] + vacancy_salary['to']) / 2)
-        return salary
-
-
-def predict_rub_salary_sj(vacancy):
-    if vacancy['payment_to'] and vacancy['payment_from']:
-        salary = int((vacancy['payment_from'] + vacancy['payment_to']) / 2)
-        return salary
-    elif not vacancy['payment_from']:
-        salary = int(vacancy['payment_to'] * 0.8)
-        return salary
-    elif not vacancy['payment_to']:
-        salary = int(vacancy['payment_from'] * 1.2)
+        salary = int((payment_from + payment_to) / 2)
         return salary
 
 
@@ -109,7 +96,13 @@ def we_find_average_salaries_hh(languages):
         salaries = []
         for vacancies in vacancies_hh:
             for vacancy in vacancies['items']:
-                salary = predict_rub_salary_hh(vacancy)
+                vacancy_salary = vacancy['salary']
+                if vacancy_salary:
+                    payment_to = vacancy_salary['to']
+                    payment_from = vacancy_salary['from']
+                    salary = predict_rub_salary(payment_to, payment_from)
+                else:
+                    salary = None
                 if salary:
                     salaries.append(salary)
         try:
@@ -140,7 +133,9 @@ def we_find_average_salaries_sj(languages, api_key):
         salaries = []
         for vacancies in vacancies_sj:
             for vacancy in vacancies['objects']:
-                salary = predict_rub_salary_sj(vacancy)
+                payment_to = vacancy['payment_to']
+                payment_from = vacancy['payment_from']
+                salary = predict_rub_salary(payment_to, payment_from)
                 if salary:
                     salaries.append(salary)
         if salaries:
@@ -168,7 +163,7 @@ def we_find_average_salaries_sj(languages, api_key):
 def main():
     load_dotenv()
     api_key = os.getenv('API_KEY_SJ')
-    programming_language = ['Python', 'Java', 'Javascript', 'Go', 'PHP', 'C++']
+    programming_language = ['Python']  #, 'Java', 'Javascript', 'Go', 'PHP', 'C++']
 
     average_salaries_for_vacancies = we_find_average_salaries_sj(programming_language, api_key)
     table_sj = creating_a_table_of_average_salaries(average_salaries_for_vacancies, 'Super Job')
