@@ -107,21 +107,16 @@ def find_average_salaries_hh(languages):
                     salaries.append(salary)
         try:
             average = int(sum(salaries) / len(salaries))
-            count = len(salaries)
-            average_salaries_for_vacancies[language] = {
-                'vacancies_found': total,
-                'vacancies_processed': count,
-                'average_salary': average,
-            }
         except ZeroDivisionError:
             print("Cannot divide by zero!")
-            count = len(salaries)
             average = 0
-            average_salaries_for_vacancies[language] = {
-                    'vacancies_found': total,
-                    'vacancies_processed': count,
-                    'average_salary': average,
-            }
+
+        count = len(salaries)
+        average_salaries_for_vacancies[language] = {
+            'vacancies_found': total,
+            'vacancies_processed': count,
+            'average_salary': average,
+        }
 
     return average_salaries_for_vacancies
 
@@ -138,24 +133,18 @@ def find_average_salaries_sj(languages, api_key):
                 salary = predict_rub_salary(payment_to, payment_from)
                 if salary:
                     salaries.append(salary)
-        if salaries:
-            try:
-                average = int(sum(salaries) / len(salaries))
-                count = len(salaries)
-                average_salaries_for_vacancies[language] = {
-                    'vacancies_found': total,
-                    'vacancies_processed': count,
-                    'average_salary': average,
-                }
-            except ZeroDivisionError:
-                print("Cannot divide by zero!")
-                count = len(salaries)
-                average = 0
-                average_salaries_for_vacancies[language] = {
-                    'vacancies_found': total,
-                    'vacancies_processed': count,
-                    'average_salary': average,
-                }
+        try:
+            average = int(sum(salaries) / len(salaries))
+        except ZeroDivisionError:
+            print("Cannot divide by zero!")
+            average = 0
+
+        count = len(salaries)
+        average_salaries_for_vacancies[language] = {
+            'vacancies_found': total,
+            'vacancies_processed': count,
+            'average_salary': average,
+        }
 
     return average_salaries_for_vacancies
 
