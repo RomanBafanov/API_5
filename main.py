@@ -75,7 +75,7 @@ def predict_rub_salary(payment_to, payment_from):
         return salary
 
 
-def creating_a_table_of_average_salaries(average_salaries_for_vacancies, website):
+def create_a_table_of_average_salaries(average_salaries_for_vacancies, website):
     analyzed_salaries = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     for language, analysis in average_salaries_for_vacancies.items():
         job_analysis = [language]
@@ -89,7 +89,7 @@ def creating_a_table_of_average_salaries(average_salaries_for_vacancies, website
     return table_instance
 
 
-def we_find_average_salaries_hh(languages):
+def find_average_salaries_hh(languages):
     average_salaries_for_vacancies = {}
     for language in languages:
         vacancies_hh, total = get_vacancies_hh(language)
@@ -126,7 +126,7 @@ def we_find_average_salaries_hh(languages):
     return average_salaries_for_vacancies
 
 
-def we_find_average_salaries_sj(languages, api_key):
+def find_average_salaries_sj(languages, api_key):
     average_salaries_for_vacancies = {}
     for language in languages:
         vacancies_sj, total = get_vacancies_sj(language, api_key)
@@ -163,13 +163,13 @@ def we_find_average_salaries_sj(languages, api_key):
 def main():
     load_dotenv()
     api_key = os.getenv('API_KEY_SJ')
-    programming_language = ['Python']  #, 'Java', 'Javascript', 'Go', 'PHP', 'C++']
+    programming_language = ['Python', 'Java', 'Javascript', 'Go', 'PHP', 'C++']
 
-    average_salaries_for_vacancies = we_find_average_salaries_sj(programming_language, api_key)
-    table_sj = creating_a_table_of_average_salaries(average_salaries_for_vacancies, 'Super Job')
+    average_salaries_for_vacancies = find_average_salaries_sj(programming_language, api_key)
+    table_sj = create_a_table_of_average_salaries(average_salaries_for_vacancies, 'Super Job')
 
-    average_salaries_for_vacancies = we_find_average_salaries_hh(programming_language)
-    table_hh = creating_a_table_of_average_salaries(average_salaries_for_vacancies, 'HeadHunter')
+    average_salaries_for_vacancies = find_average_salaries_hh(programming_language)
+    table_hh = create_a_table_of_average_salaries(average_salaries_for_vacancies, 'HeadHunter')
 
     print(f"{table_hh.table}\n\n{table_sj.table}")
 
